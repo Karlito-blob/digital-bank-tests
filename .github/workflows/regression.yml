@@ -33,10 +33,10 @@ jobs:
 
         steps:
             - name: Checkout du code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
 
             - name: Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v5
               with:
                   node-version: lts/*
                   cache: "npm"
@@ -45,7 +45,7 @@ jobs:
               run: npm ci
 
             - name: Cache navigateurs Playwright
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               id: playwright-cache
               with:
                   path: ~/.cache/ms-playwright
@@ -53,13 +53,16 @@ jobs:
 
             - name: Installation navigateur ${{ matrix.browser }}
               if: steps.playwright-cache.outputs.cache-hit != 'true'
-              run: npx playwright install --with-deps ${{ matrix.browser }}
+              run: npx playwright install ${{ matrix.browser }}
+
+            - name: Installation dependances systeme ${{ matrix.browser }}
+              run: npx playwright install-deps ${{ matrix.browser }}
 
             - name: Lancement Regression — ${{ matrix.browser }}
-              run: npx playwright test --grep @regression --project=${{ matrix.browser }}
+              run: npx playwright test --grep "@regression" --project=${{ matrix.browser }}
 
             - name: Upload rapport si echec
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v5
               if: failure()
               with:
                   name: regression-report-${{ matrix.browser }}
