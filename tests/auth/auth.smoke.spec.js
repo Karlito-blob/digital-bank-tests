@@ -56,4 +56,66 @@ test.describe('Authentification - Smoke', () => {
         await expect(loginPage.loginButton).toBeVisible();
     });
 
+    // ─────────────────────────────────────────────
+    // DGB-AUTH-03
+    // ─────────────────────────────────────────────
+    test('DGB-AUTH-03 - Login 2FA - doit acceder au dashboard apres code valide', async ({ page }) => {
+        const loginPage = new LoginPage(page);
+        const dashboardPage = new DashboardPage(page);
+
+        // GIVEN — l'utilisateur est sur la page de login (beforeEach)
+
+        // WHEN — il saisit les identifiants du compte 2FA
+        await loginPage.login(
+            USERS.twoFA.email,
+            USERS.twoFA.password
+        );
+
+        // WHEN — il saisit le code 2FA valide
+        await loginPage.enter2FACode(USERS.twoFA.twoFACode);
+
+        // THEN — le dashboard est affiché avec son nom
+        await expect(dashboardPage.headerUserName).toBeVisible();
+        await expect(dashboardPage.headerUserName).toContainText(USERS.twoFA.name);
+    });
+
+    // ─────────────────────────────────────────────
+    // DGB-AUTH-04
+    // ─────────────────────────────────────────────
+    test('DGB-AUTH-04 - Reset MDP - doit afficher confirmation envoi email', async ({ page }) => {
+        const loginPage = new LoginPage(page);
+
+        // GIVEN — l'utilisateur est sur la page de login (beforeEach)
+
+        // WHEN — il clique sur mot de passe oublié et soumet un email connu
+        await loginPage.submitResetPassword(USERS.standard.email);
+
+        // THEN — un message de succès est affiché
+        await expect(loginPage.resetSuccess).toBeVisible();
+        await expect(loginPage.resetSuccess).toContainText(USERS.standard.email);
+    });
+
+    // ─────────────────────────────────────────────
+    // DGB-AUTH-05 @known-bug
+    // ─────────────────────────────────────────────
+    test('DGB-AUTH-05 - Mauvais MDP - doit afficher erreur sans verrouillage @known-bug', async ({ page }) => {
+        const loginPage = new LoginPage(page);
+
+        // GIVEN — l'utilisateur est sur la page de login (beforeEach)
+
+        // WHEN — il saisit un email valide avec un mauvais mot de passe
+        await loginPage.login(
+            USERS.wrongPassword.email,
+            USERS.wrongPassword.password
+        );
+
+        // THEN — un message d'erreur est affiché
+        await expect(loginPage.errorMessage).toBeVisible();
+        await expect(loginPage.errorMessage).toContainText('Email ou mot de passe incorrect');
+
+        // THEN — @known-bug : aucun verrouillage apres tentatives multiples
+        // Anomalie DGB-AUTH-05 : le mecanisme de verrouillage est absent
+        // A corriger par l'equipe dev — test mis a jour apres fix
+    });
+
 });
