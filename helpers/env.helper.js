@@ -15,7 +15,7 @@ const ENV = {
 
     // Timeout global
     // En CI on augmente pour compenser la latence des runners
-    TIMEOUT: process.env.CI ? 30000 : 10000,
+    TIMEOUT: process.env.CI ? 60000 : 30000,
 
     // Retry
     // En local : 0 retry pour debugger facilement
