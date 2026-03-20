@@ -1,39 +1,50 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
+const { ENV } = require('./helpers/env.helper');
 
 module.exports = defineConfig({
 
   // Dossier contenant tous les tests
   testDir: './tests',
 
+  // Scripts de setup et teardown globaux
+  globalSetup: require.resolve('./global-setup'),
+  globalTeardown: require.resolve('./global-teardown'),
+
   // Timeout global par test
-  timeout: 30000,
+  timeout: ENV.TIMEOUT,
 
   // Timeout pour chaque assertion
   expect: { timeout: 5000 },
 
   // Rapport HTML généré après chaque exécution
-  reporter: [['html', { open: 'never' }]],
+  reporter: [
+    ['html', { open: 'never' }],
+    ['list'],
+  ],
 
-  // Pas de retry en local, 1 en CI
-  retries: process.env.CI ? 1 : 0,
+  // Retry selon l'environnement
+  retries: ENV.RETRIES,
 
   // 2 workers en CI, auto en local
   workers: process.env.CI ? 2 : undefined,
 
   // Config partagée par tous les tests
   use: {
-    // URL de base — Playwright ouvrira toujours cette adresse
-    baseURL: 'http://localhost:3000',
+    // URL de base
+    baseURL: ENV.BASE_URL,
 
     // Screenshot uniquement en cas d'échec
     screenshot: 'only-on-failure',
 
-    // Trace uniquement en cas d'échec (pour debug)
+    // Trace uniquement en cas d'échec
     trace: 'retain-on-failure',
 
-    // Animations réduites — évite les timeouts sur transitions CSS
+    // Animations réduites
     reducedMotion: 'reduce',
+
+    // Headless selon environnement
+    headless: ENV.HEADLESS,
   },
 
   // Navigateurs testés
@@ -50,7 +61,6 @@ module.exports = defineConfig({
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
-    // Viewport mobile
     {
       name: 'mobile-chrome',
       use: { ...devices['Pixel 5'] },
@@ -64,7 +74,7 @@ module.exports = defineConfig({
   // Démarre automatiquement le serveur local avant les tests
   webServer: {
     command: 'npx serve ./app --listen 3000',
-    url: 'http://localhost:3000',
+    url: ENV.BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 10000,
   },
