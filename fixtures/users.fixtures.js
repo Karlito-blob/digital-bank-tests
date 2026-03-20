@@ -49,4 +49,20 @@ const ACCOUNTS = {
     totalBalance: '20 000,00',
 };
 
-module.exports = { USERS, ACCOUNTS };
+// Données de test mot de passe
+const PASSWORDS = {
+    // Mot de passe actuel de l'utilisateur test
+    current: 'Test1234!',
+
+    // Nouveau mot de passe valide
+    valid: 'NewPass99!',
+
+    // Cas invalides
+    tooShort: 'Ab1!',
+    noUppercase: 'newpass99!',
+    noLowercase: 'NEWPASS99!',
+    noNumber: 'NewPass!!',
+    noSpecial: 'NewPass99',
+};
+
+module.exports = { USERS, ACCOUNTS, PASSWORDS };
