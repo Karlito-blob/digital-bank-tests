@@ -7,7 +7,7 @@ const { LoginPage } = require('../../pages/LoginPage');
 const { DashboardPage } = require('../../pages/DashboardPage');
 const { USERS, ACCOUNTS } = require('../../fixtures/users.fixtures');
 
-test.describe('Dashboard - Regression', () => {
+test.describe('Dashboard - Regression', { tag: '@regression' }, () => {
 
     test.beforeEach(async ({ page }) => {
         // GIVEN — l'utilisateur est connecté sur le dashboard

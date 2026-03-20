@@ -7,7 +7,7 @@ const { LoginPage } = require('../../pages/LoginPage');
 const { DashboardPage } = require('../../pages/DashboardPage');
 const { USERS } = require('../../fixtures/users.fixtures');
 
-test.describe('Authentification - Smoke', () => {
+test.describe('Authentification - Smoke', { tag: '@smoke' }, () => {
 
     test.beforeEach(async ({ page }) => {
         // GIVEN — l'utilisateur est sur la page de login
