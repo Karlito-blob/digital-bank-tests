@@ -22,10 +22,10 @@ jobs:
 
     steps:
       - name: Checkout du code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: lts/*
           cache: "npm"
@@ -34,7 +34,7 @@ jobs:
         run: npm ci
 
       - name: Cache navigateurs Playwright
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
@@ -45,10 +45,10 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Lancement Smoke — Chromium
-        run: npx playwright test --grep @smoke --project=chromium
+        run: npx playwright test --grep "@smoke" --project=chromium
 
       - name: Upload rapport si echec
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: smoke-report
