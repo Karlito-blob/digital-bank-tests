@@ -31,4 +31,22 @@ const USERS = {
     },
 };
 
-module.exports = { USERS };
+// Données des comptes utilisateur test
+const ACCOUNTS = {
+    // Compte courant utilisateur test (ID 4 dans la SPA)
+    courant: {
+        id: 4,
+        type: 'Compte Courant',
+        balance: '5 000,00',
+    },
+    // Livret A utilisateur test (ID 5 dans la SPA)
+    livretA: {
+        id: 5,
+        type: 'Livret A',
+        balance: '15 000,00',
+    },
+    // Total des deux comptes
+    totalBalance: '20 000,00',
+};
+
+module.exports = { USERS, ACCOUNTS };
