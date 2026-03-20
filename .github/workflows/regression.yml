@@ -1,0 +1,67 @@
+name: Regression Tests
+
+on:
+    workflow_run:
+        workflows: ["Smoke Tests"]
+        types: [completed]
+    pull_request:
+        branches:
+            - main
+            - "sprint-*"
+        paths:
+            - "tests/**"
+            - "pages/**"
+            - "fixtures/**"
+            - "app/**"
+            - "package.json"
+            - "package-lock.json"
+            - "playwright.config.js"
+
+jobs:
+    regression:
+        name: Regression Tests
+        timeout-minutes: 20
+        runs-on: ubuntu-latest
+
+        if: >
+            github.event_name == 'pull_request' ||
+            github.event.workflow_run.conclusion == 'success'
+
+        strategy:
+            matrix:
+                browser: [chromium, firefox, webkit]
+
+        steps:
+            - name: Checkout du code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/*
+                  cache: "npm"
+
+            - name: Installation des dependances
+              run: npm ci
+
+            - name: Cache navigateurs Playwright
+              uses: actions/cache@v4
+              id: playwright-cache
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: playwright-${{ matrix.browser }}-${{ hashFiles('package-lock.json') }}
+
+            - name: Installation navigateur ${{ matrix.browser }}
+              if: steps.playwright-cache.outputs.cache-hit != 'true'
+              run: npx playwright install --with-deps ${{ matrix.browser }}
+
+            - name: Lancement Regression — ${{ matrix.browser }}
+              run: npx playwright test --grep @regression --project=${{ matrix.browser }}
+
+            - name: Upload rapport si echec
+              uses: actions/upload-artifact@v4
+              if: failure()
+              with:
+                  name: regression-report-${{ matrix.browser }}
+                  path: playwright-report/
+                  retention-days: 14

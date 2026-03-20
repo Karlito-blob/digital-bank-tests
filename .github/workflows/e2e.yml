@@ -1,0 +1,62 @@
+name: E2E Tests
+
+on:
+  workflow_run:
+    workflows: ["Regression Tests"]
+    types: [completed]
+  push:
+    branches:
+      - main
+    paths:
+      - "tests/**"
+      - "pages/**"
+      - "fixtures/**"
+      - "app/**"
+      - "package.json"
+      - "package-lock.json"
+      - "playwright.config.js"
+
+jobs:
+  e2e:
+    name: E2E Tests
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    if: >
+      github.event_name == 'push' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: "npm"
+
+      - name: Installation des dependances
+        run: npm ci
+
+      - name: Cache navigateurs Playwright
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('package-lock.json') }}
+
+      - name: Installation Chromium uniquement
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Lancement E2E — Chromium
+        run: npx playwright test --grep @e2e --project=chromium
+
+      - name: Upload rapport si echec
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-report
+          path: playwright-report/
+          retention-days: 30
