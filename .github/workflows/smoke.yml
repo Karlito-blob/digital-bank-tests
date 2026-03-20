@@ -1,53 +1,56 @@
 name: Smoke Tests
 
 on:
-    push:
-        branches:
-            - main
-            - "sprint-*"
-        paths:
-            - "tests/**"
-            - "pages/**"
-            - "fixtures/**"
-            - "app/**"
+  push:
+    branches:
+      - main
+      - "sprint-*"
+    paths:
+      - "tests/**"
+      - "pages/**"
+      - "fixtures/**"
+      - "app/**"
+      - "package.json"
+      - "package-lock.json"
+      - "playwright.config.js"
 
 jobs:
-    smoke:
-        name: Smoke Tests
-        timeout-minutes: 10
-        runs-on: ubuntu-latest
+  smoke:
+    name: Smoke Tests
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout du code
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: lts/*
-                  cache: "npm"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: "npm"
 
-            - name: Installation des dependances
-              run: npm ci
+      - name: Installation des dependances
+        run: npm ci
 
-            - name: Cache navigateurs Playwright
-              uses: actions/cache@v4
-              id: playwright-cache
-              with:
-                  path: ~/.cache/ms-playwright
-                  key: playwright-chromium-${{ hashFiles('package-lock.json') }}
+      - name: Cache navigateurs Playwright
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('package-lock.json') }}
 
-            - name: Installation Chromium uniquement
-              if: steps.playwright-cache.outputs.cache-hit != 'true'
-              run: npx playwright install --with-deps chromium
+      - name: Installation Chromium uniquement
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
 
-            - name: Lancement Smoke — Chromium
-              run: npx playwright test --grep @smoke --project=chromium
+      - name: Lancement Smoke — Chromium
+        run: npx playwright test --grep @smoke --project=chromium
 
-            - name: Upload rapport si echec
-              uses: actions/upload-artifact@v4
-              if: failure()
-              with:
-                  name: smoke-report
-                  path: playwright-report/
-                  retention-days: 7
+      - name: Upload rapport si echec
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: smoke-report
+          path: playwright-report/
+          retention-days: 7

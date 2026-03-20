@@ -2,7 +2,7 @@ name: Regression Tests
 
 on:
     workflow_run:
-        workflows: ["Smoke Tests"] # démarre uniquement si Smoke est vert
+        workflows: ["Smoke Tests"]
         types: [completed]
     pull_request:
         branches:
@@ -13,6 +13,9 @@ on:
             - "pages/**"
             - "fixtures/**"
             - "app/**"
+            - "package.json"
+            - "package-lock.json"
+            - "playwright.config.js"
 
 jobs:
     regression:
@@ -20,14 +23,13 @@ jobs:
         timeout-minutes: 20
         runs-on: ubuntu-latest
 
-        # Si déclenché par workflow_run, vérifie que Smoke était vert
         if: >
             github.event_name == 'pull_request' ||
             github.event.workflow_run.conclusion == 'success'
 
         strategy:
             matrix:
-                browser: [chromium, firefox, webkit] # parallelisation 3 navigateurs
+                browser: [chromium, firefox, webkit]
 
         steps:
             - name: Checkout du code
