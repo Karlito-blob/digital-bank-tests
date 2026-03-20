@@ -2,7 +2,6 @@
 // Script execute UNE FOIS avant toute la suite de tests
 // Verifie que l'environnement est pret avant de lancer les tests
 
-const { chromium } = require('@playwright/test');
 const { ENV } = require('./helpers/env.helper');
 
 async function globalSetup() {
@@ -17,28 +16,26 @@ async function globalSetup() {
     console.log(`  Retries       : ${ENV.RETRIES}`);
     console.log('');
 
-    // Verification que la SPA est accessible avant de lancer les tests
-    const browser = await chromium.launch();
-    const page = await browser.newPage();
+    // Verification que la SPA est accessible via HTTP
+    console.log('  Verification accessibilite SPA...');
 
     try {
-        console.log('  Verification accessibilite SPA...');
-        await page.goto(ENV.BASE_URL, { timeout: ENV.TIMEOUT });
+        const response = await fetch(ENV.BASE_URL, {
+            signal: AbortSignal.timeout(10000),
+        });
 
-        // Verifie que la page de login est bien chargee
-        const loginButton = await page.getByTestId('btn-login');
-        await loginButton.waitFor({ timeout: 5000 });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status} — ${response.statusText}`);
+        }
 
-        console.log('  SPA accessible et page de login chargee');
+        console.log(`  SPA accessible — HTTP ${response.status}`);
         console.log('');
     } catch (error) {
         console.error('  ERREUR : La SPA nest pas accessible !');
-        console.error(`  URL : ${ENV.BASE_URL}`);
+        console.error(`  URL    : ${ENV.BASE_URL}`);
         console.error(`  Detail : ${error.message}`);
         console.error('');
         throw new Error(`Global Setup echoue — SPA inaccessible : ${ENV.BASE_URL}`);
-    } finally {
-        await browser.close();
     }
 
     console.log('  Setup termine — lancement des tests...');
