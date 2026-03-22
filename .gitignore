@@ -6,8 +6,7 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
-# Variables d'environnement locales — ne jamais committer
+# Variables d'environnement
 .env.local
+.env.ci
 .env*.local
-
-# Garder .env.ci comme reference — il ne contient pas de secrets
