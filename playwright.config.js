@@ -1,4 +1,5 @@
 // @ts-check
+// Config mise a jour — fix/config-cleanup
 const { defineConfig, devices } = require('@playwright/test');
 const { ENV } = require('./helpers/env.helper');
 
