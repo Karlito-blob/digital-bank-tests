@@ -51,7 +51,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Lancement E2E — Chromium
-        run: npx playwright test --grep "@e2e" --project=chromium --pass-with-no-tests
+        run: npx playwright test --grep "@e2e" --project=chromium
 
       - name: Upload rapport si echec
         uses: actions/upload-artifact@v5
